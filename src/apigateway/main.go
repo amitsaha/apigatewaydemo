@@ -11,33 +11,32 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"flag"
+	"fmt"
+	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/ratelimit"
+	"github.com/go-kit/kit/sd"
 	consulsd "github.com/go-kit/kit/sd/consul"
+	"github.com/go-kit/kit/sd/lb"
+	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/consul/api"
+	jujuratelimit "github.com/juju/ratelimit"
 	"golang.org/x/net/context"
-    "net/http"
-    "encoding/json"
-    "github.com/go-kit/kit/sd"
-    "github.com/go-kit/kit/endpoint"
-    "github.com/go-kit/kit/sd/lb"
-    jujuratelimit "github.com/juju/ratelimit"
-    "github.com/go-kit/kit/ratelimit"
-    "io"
-    httptransport "github.com/go-kit/kit/transport/http"
-    "bytes"
+	"io"
 	"io/ioutil"
-    "net/url"
-	"fmt"
-    "strings"
-	"syscall"
-    "os"
+	"net/http"
+	"net/url"
+	"os"
 	"os/signal"
-    "time"
-    "errors"
-    //"net/http/httputil"
-
+	"strings"
+	"syscall"
+	"time"
+	//"net/http/httputil"
 )
 
 func encodeJSONResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -46,32 +45,32 @@ func encodeJSONResponse(_ context.Context, w http.ResponseWriter, response inter
 }
 
 func encodeJSONRequest(_ context.Context, req *http.Request, request interface{}) error {
-    var buf bytes.Buffer
-    if err := json.NewEncoder(&buf).Encode(request); err != nil {
-        return err
-    }
-    req.Body = ioutil.NopCloser(&buf)
-    return nil
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(request); err != nil {
+		return err
+	}
+	req.Body = ioutil.NopCloser(&buf)
+	return nil
 }
 
 func decodeCreateRequest(ctx context.Context, req *http.Request) (interface{}, error) {
 	var request struct {
 		Title string `json:"title"`
 	}
-    // Check if we have the Auth-Header-V1 set for Header based authentication
-    // TODO: Could be a middleware like rate limiter
-    if req.Header.Get("Auth-Header-V1") == "" {
-        return nil, errors.New("Auth-Header-V1 missing")
-    }
+	// Check if we have the Auth-Header-V1 set for Header based authentication
+	// TODO: Could be a middleware like rate limiter
+	if req.Header.Get("Auth-Header-V1") == "" {
+		return nil, errors.New("Auth-Header-V1 missing")
+	}
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, err
 	}
-    return request, nil
+	return request, nil
 }
 
 func decodeProjectsResponse(ctx context.Context, resp *http.Response) (interface{}, error) {
 	var response struct {
-        Id int `json:"id,omitempty"`
+		Id  int    `json:"id,omitempty"`
 		Url string `json:"url,omitempty"`
 		Err string `json:"err,omitempty"`
 	}
@@ -81,11 +80,11 @@ func decodeProjectsResponse(ctx context.Context, resp *http.Response) (interface
 	return response, nil
 }
 
-func projectsFactory(ctx context.Context, method, path string ) sd.Factory {
+func projectsFactory(ctx context.Context, method, path string) sd.Factory {
 
-    var (
-        qps = 1  //1 queries per second
-    )
+	var (
+		qps = 1 //1 queries per second
+	)
 	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
 		if !strings.HasPrefix(instance, "http") {
 			instance = "http://" + instance
@@ -97,16 +96,16 @@ func projectsFactory(ctx context.Context, method, path string ) sd.Factory {
 		if u.Path == "" && method == "POST" {
 			u.Path = "/create"
 		}
-        // We can set functions to be called before and after the request
-        // as well
+		// We can set functions to be called before and after the request
+		// as well
 		endpoint := httptransport.NewClient(
 			method,
 			u,
 			encodeJSONRequest,
 			decodeProjectsResponse,
 		).Endpoint()
-        // Add rate limiting for this endpoint
-        endpoint = ratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(float64(qps), int64(qps)))(endpoint)
+		// Add rate limiting for this endpoint
+		endpoint = ratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(float64(qps), int64(qps)))(endpoint)
 		return endpoint, nil, nil
 	}
 }
@@ -114,9 +113,9 @@ func projectsFactory(ctx context.Context, method, path string ) sd.Factory {
 func main() {
 
 	var (
-		httpAddr     = flag.String("http.addr", ":8000", "Address for HTTP server")
-		consulAddr   = flag.String("consul.addr", "", "Consul agent address")
-        // Retry upon a non-200 response (TODO: investigate)
+		httpAddr   = flag.String("http.addr", ":8000", "Address for HTTP server")
+		consulAddr = flag.String("consul.addr", "", "Consul agent address")
+		// Retry upon a non-200 response (TODO: investigate)
 		retryMax     = flag.Int("retry.max", 1, "per-request retries to different instances")
 		retryTimeout = flag.Duration("retry.timeout", 500*time.Millisecond, "per-request timeout, including retries")
 	)
