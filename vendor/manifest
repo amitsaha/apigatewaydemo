@@ -16,6 +16,13 @@
 			"path": "/log"
 		},
 		{
+			"importpath": "github.com/go-kit/kit/ratelimit",
+			"repository": "https://github.com/go-kit/kit",
+			"revision": "9f5c614cd1e70102f80b644edbc760805ebf16d5",
+			"branch": "master",
+			"path": "/ratelimit"
+		},
+		{
 			"importpath": "github.com/go-kit/kit/sd",
 			"repository": "https://github.com/go-kit/kit",
 			"revision": "9f5c614cd1e70102f80b644edbc760805ebf16d5",
@@ -79,6 +86,12 @@
 			"revision": "f679d7594a349263f6118db40d87122d3a474e7d",
 			"branch": "master",
 			"path": "/coordinate"
+		},
+		{
+			"importpath": "github.com/juju/ratelimit",
+			"repository": "https://github.com/juju/ratelimit",
+			"revision": "77ed1c8a01217656d2080ad51981f6e99adaa177",
+			"branch": "master"
 		},
 		{
 			"importpath": "golang.org/x/net/context",

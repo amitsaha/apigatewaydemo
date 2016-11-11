@@ -2,12 +2,14 @@ package http
 
 import (
 	"net/http"
+    "net/http/httputil"
 	"net/url"
 
 	"golang.org/x/net/context"
 	"golang.org/x/net/context/ctxhttp"
 
 	"github.com/go-kit/kit/endpoint"
+    "fmt"
 )
 
 // Client wraps a URL and provides a method that implements endpoint.Endpoint.
@@ -88,6 +90,15 @@ func (c Client) Endpoint() endpoint.Endpoint {
 		if err = c.enc(ctx, req, request); err != nil {
 			return nil, Error{Domain: DomainEncode, Err: err}
 		}
+
+    dump, err := httputil.DumpRequestOut(req, true)
+    if err != nil {
+        fmt.Printf("%s\n", err)
+    }
+
+    fmt.Printf("Sending inside the client: %q\n", dump)
+
+
 
 		for _, f := range c.before {
 			ctx = f(ctx, req)
