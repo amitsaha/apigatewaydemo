@@ -27,6 +27,8 @@ import (
 	"github.com/hashicorp/consul/api"
 	jujuratelimit "github.com/juju/ratelimit"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -36,6 +38,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	grpctransport "github.com/go-kit/kit/transport/grpc"
 	//"net/http/httputil"
 )
 
@@ -68,6 +71,20 @@ func decodeCreateRequest(ctx context.Context, req *http.Request) (interface{}, e
 	return request, nil
 }
 
+func decodeVerifyRequest(ctx context.Context, req *http.Request) (interface{}, error) {
+	// Check if we have the Auth-Header-V1 set for Header based authentication
+	// TODO: Could be a middleware like rate limiter
+	var request verifyRequest
+	if req.Header.Get("Auth-Header-V1") == "" {
+		return nil, errors.New("Auth-Header-V1 missing")
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+
 func decodeProjectsResponse(ctx context.Context, resp *http.Response) (interface{}, error) {
 	var response struct {
 		Id  int    `json:"id,omitempty"`
@@ -78,6 +95,55 @@ func decodeProjectsResponse(ctx context.Context, resp *http.Response) (interface
 		return nil, err
 	}
 	return response, nil
+}
+
+type verifyResponse struct {
+	Message string
+	Err error
+}
+
+func DecodeGRPCVerifyResponse(_ context.Context, response interface{}) (interface{}, error) {
+    resp := response.(*pb.HelloReply)
+	return verifyResponse{Message: resp.Message, Err: nil}, nil
+}
+
+type verifyRequest struct{ Name string }
+
+func EncodeGRPCVerifyRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(verifyRequest)
+	return &pb.HelloRequest{Name: req.Name}, nil
+}
+
+func makeVerifyEndpoint(conn *grpc.ClientConn) endpoint.Endpoint {
+	return grpctransport.NewClient(
+			conn,
+			"helloworld.Greeter", // Service name, packagename.ServiceName
+			"SayHello", // Function
+			EncodeGRPCVerifyRequest,
+			DecodeGRPCVerifyResponse,
+			pb.HelloReply{},
+			//grpctransport.ClientBefore(opentracing.ToGRPCRequest(tracer, logger)),
+		).Endpoint()
+}
+
+func verifyFactory(ctx context.Context) sd.Factory {
+
+	var (
+		qps = 1 //1 queries per second
+	)
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+		// We can set functions to be called before and after the request
+		// as well
+		conn, err := grpc.Dial(instance, grpc.WithInsecure())
+		if err != nil {
+			return nil, nil, err
+		}
+		// Our gRPC client
+		endpoint := makeVerifyEndpoint(conn)
+		// Add rate limiting for this endpoint
+		endpoint = ratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(float64(qps), int64(qps)))(endpoint)
+		return endpoint, nil, nil
+	}
 }
 
 func projectsFactory(ctx context.Context, method, path string) sd.Factory {
@@ -153,16 +219,27 @@ func main() {
 		create      endpoint.Endpoint
 	)
 
-	factory := projectsFactory(ctx, "POST", "/create")
-	subscriber := consulsd.NewSubscriber(client, factory, logger, "projects", tags, passingOnly)
-	balancer := lb.NewRoundRobin(subscriber)
-	retry := lb.Retry(*retryMax, *retryTimeout, balancer)
-	create = retry
-
-	// Routes
-	// Handle /api/: This is another HTTP service which is where our
+	// Route to a HTTP service
+	// Handle /projects/: This is another HTTP service which is where our
 	// Projects API is running
-	r.Handle("/projects/", httptransport.NewServer(ctx, create, decodeCreateRequest, encodeJSONResponse))
+	{
+		factory := projectsFactory(ctx, "POST", "/create")
+		subscriber := consulsd.NewSubscriber(client, factory, logger, "projects", tags, passingOnly)
+		balancer := lb.NewRoundRobin(subscriber)
+		retry := lb.Retry(*retryMax, *retryTimeout, balancer)
+		create = retry
+		r.Handle("/projects/", httptransport.NewServer(ctx, create, decodeCreateRequest, encodeJSONResponse))
+	}
+	// Route to a gRPC service
+	// Handle /verify/
+	{
+		factory := verifyFactory(ctx)
+		subscriber := consulsd.NewSubscriber(client, factory, logger, "verification", tags, passingOnly)
+		balancer := lb.NewRoundRobin(subscriber)
+		retry := lb.Retry(*retryMax, *retryTimeout, balancer)
+		create = retry
+		r.Handle("/verify/", httptransport.NewServer(ctx, create, decodeVerifyRequest, encodeJSONResponse))
+	}
 
 	// Interrupt handler.
 	errc := make(chan error)
