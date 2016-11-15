@@ -1,6 +1,12 @@
 from flask import Flask, request, jsonify
+import consulate
 
-app =  Flask(__name__)
+consul = consulate.Consul()
+# Add "projects" service to the local agent
+consul.agent.service.register('projects', port=5000)
+
+app = Flask(__name__)
+
 
 @app.route('/create', methods=['POST'])
 def create_project():

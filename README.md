@@ -1,17 +1,32 @@
+### Consul 
+
+We will use `consul` for service discovery. To install it, follow the official docs 
+[here](https://www.consul.io/intro/getting-started/install.html) and then start the
+agent in dev mode:
+
+
+```
+$consul agent -dev
+.. 
+...
+```
 ### Start the web application
+
+Our Python web application relies on `flask` and `consulate`, so you will need those installed
+before you can run it and register itself with `consul`. Using a virtual environment is recommended:
+
+```
+$ virtualenv python-web-app
+$ . ./python-web-app/bin/activate
+$ cd webap-1
+$ pip install requirements.txt
+$ python app.py
 
 ### Start the gRPC service
 
-### Consul 
 
-```
-# Install consul
-...
-# Copy the JSON files to /etc/consul.d
-
-# Start the agent
-$ consul agent -dev -config-dir=/etc/consul.d
-```
+The above services will register themselves with `consul` by speaking to the agent we
+are running above.
 
 ### Start the API gateway
 
