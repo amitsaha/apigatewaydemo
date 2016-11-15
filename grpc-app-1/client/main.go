@@ -4,7 +4,7 @@ import (
 	"log"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "github.com/amitsaha/apigateway-demo/grpc-app-1/verify"
+	pb "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify"
 )
 
 const (

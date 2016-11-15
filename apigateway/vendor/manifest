@@ -16,6 +16,13 @@
 			"path": "/internal"
 		},
 		{
+			"importpath": "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify",
+			"repository": "https://github.com/amitsaha/apigatewaydemo",
+			"revision": "5876d6e214975c60a5afffe974532996e5c92aa8",
+			"branch": "master",
+			"path": "/grpc-app-1/verify"
+		},
+		{
 			"importpath": "github.com/go-kit/kit/endpoint",
 			"repository": "https://github.com/go-kit/kit",
 			"revision": "9f5c614cd1e70102f80b644edbc760805ebf16d5",

@@ -28,7 +28,7 @@ import (
 	jujuratelimit "github.com/juju/ratelimit"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "github.com/atmisaha/apigateway-demo/grpc-app-1/verify"
+	pb "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -74,7 +74,7 @@ func decodeCreateRequest(ctx context.Context, req *http.Request) (interface{}, e
 func decodeVerifyRequest(ctx context.Context, req *http.Request) (interface{}, error) {
 	// Check if we have the Auth-Header-V1 set for Header based authentication
 	// TODO: Could be a middleware like rate limiter
-	var request verifyRequest
+	var request pb.VerifyRequest
 	if req.Header.Get("Auth-Header-V1") == "" {
 		return nil, errors.New("Auth-Header-V1 missing")
 	}
@@ -107,10 +107,10 @@ func DecodeGRPCVerifyResponse(_ context.Context, response interface{}) (interfac
 	return verifyResponse{Message: resp.Message, Err: nil}, nil
 }
 
-type verifyRequest struct{ Name string }
+//type verifyRequest struct{ Name string }
 
 func EncodeGRPCVerifyRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(verifyRequest)
+	req := request.(pb.VerifyRequest)
     return &pb.VerifyRequest{Id: req.Id, Token: req.Token}, nil
 }
 
