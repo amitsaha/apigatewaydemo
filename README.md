@@ -1,3 +1,5 @@
+### Install `gb`
+
 ### Consul 
 
 We will use `consul` for service discovery. To install it, follow the official docs 
@@ -26,13 +28,23 @@ $ python app.py
 
 ### Start the gRPC service
 
+```
+$ cd grpc-app-1/server
+$ gb build
+$ ./bin/server
+```
 
-The above services will register themselves with `consul` by speaking to the agent we
-are running above.
 
 ### Start the API gateway
 
-
+```
+$ cd apigateway
+$ gb build
+$ ./bin/apigatway
+ts=2016-11-15T06:44:51Z caller=subscriber.go:48 service=projects tags=[] instances=1
+ts=2016-11-15T06:44:51Z caller=subscriber.go:48 service=verification tags=[] instances=1
+ts=2016-11-15T06:44:51Z caller=main.go:256 transport=HTTP addr=:8000
+```
 
 ### Make requests
 
