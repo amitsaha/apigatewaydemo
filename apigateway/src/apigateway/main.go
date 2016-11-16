@@ -234,7 +234,7 @@ func main() {
 	// Handle /verify/
 	{
 		factory := verifyFactory(ctx)
-		subscriber := consulsd.NewSubscriber(client, factory, logger, "verification", tags, passingOnly)
+		subscriber := consulsd.NewSubscriber(client, factory, logger, "verification1", tags, passingOnly)
 		balancer := lb.NewRoundRobin(subscriber)
 		retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 		create = retry

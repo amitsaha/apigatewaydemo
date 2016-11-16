@@ -37,8 +37,9 @@ func main() {
 
     agent := consulClient.Agent()
 	reg := &consulapi.AgentServiceRegistration{
-		Name: "verification",
+		Name: "verification1",
 		Port: 50051,
+        Tags: []string{},
 	}
 	if err := agent.ServiceRegister(reg); err != nil {
 		log.Fatalf("err: %v", err)
