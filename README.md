@@ -1,4 +1,19 @@
+# Demo API Gateway
+
+This is a Demo API gateway implemented using [go kit](https://gokit.io/examples/). You will need
+`golang` installed.
+
 ### Install `gb`
+
+The complete documentation for `gb` can be found [here](https://getgb.io/), but here are
+the two steps involved:
+
+```
+$ go get github.com/constabulary/gb/...
+$ go get github.com/constabulary/gb/cmd/gb-vendor
+```
+
+Your `$GOPATH/bin` must be in your $PATH as well.
 
 ### Consul 
 
