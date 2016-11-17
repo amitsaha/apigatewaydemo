@@ -1,7 +1,11 @@
 # Demo API Gateway
 
 This is a Demo API gateway implemented using [go kit](https://gokit.io/examples/). You will need
-`golang` installed.
+`golang` installed. The `apigateway` code lives in the `apigateway` sub-directory and there
+are two example services:
+
+- A Python web service
+- A gRPC server
 
 ### Install `gb`
 
@@ -128,6 +132,7 @@ Date: Tue, 15 Nov 2016 02:47:21 GMT
 
 ### Resources
 
-- https://peter.bourgon.org/applied-go-kit/#28
+- https://peter.bourgon.org/applied-go-kit
+- https://gokit.io
 
 
