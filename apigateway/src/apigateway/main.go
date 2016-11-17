@@ -16,19 +16,20 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	pb "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/go-kit/kit/sd"
 	consulsd "github.com/go-kit/kit/sd/consul"
 	"github.com/go-kit/kit/sd/lb"
+	grpctransport "github.com/go-kit/kit/transport/grpc"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/consul/api"
 	jujuratelimit "github.com/juju/ratelimit"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -38,7 +39,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	grpctransport "github.com/go-kit/kit/transport/grpc"
 	//"net/http/httputil"
 )
 
@@ -84,7 +84,6 @@ func decodeVerifyRequest(ctx context.Context, req *http.Request) (interface{}, e
 	return request, nil
 }
 
-
 func decodeProjectsResponse(ctx context.Context, resp *http.Response) (interface{}, error) {
 	var response struct {
 		Id  int    `json:"id,omitempty"`
@@ -99,11 +98,11 @@ func decodeProjectsResponse(ctx context.Context, resp *http.Response) (interface
 
 type verifyResponse struct {
 	Message string
-	Err error
+	Err     error
 }
 
 func DecodeGRPCVerifyResponse(_ context.Context, response interface{}) (interface{}, error) {
-    resp := response.(*pb.VerifyReply)
+	resp := response.(*pb.VerifyReply)
 	return verifyResponse{Message: resp.Message, Err: nil}, nil
 }
 
@@ -111,19 +110,19 @@ func DecodeGRPCVerifyResponse(_ context.Context, response interface{}) (interfac
 
 func EncodeGRPCVerifyRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(pb.VerifyRequest)
-    return &pb.VerifyRequest{Id: req.Id, Token: req.Token}, nil
+	return &pb.VerifyRequest{Id: req.Id, Token: req.Token}, nil
 }
 
 func makeVerifyEndpoint(conn *grpc.ClientConn) endpoint.Endpoint {
 	return grpctransport.NewClient(
-			conn,
-			"userverify.UserVerify", // Service name, packagename.ServiceName
-			"VerifyUser", // Function
-			EncodeGRPCVerifyRequest,
-			DecodeGRPCVerifyResponse,
-			pb.VerifyReply{},
-			//grpctransport.ClientBefore(opentracing.ToGRPCRequest(tracer, logger)),
-		).Endpoint()
+		conn,
+		"userverify.UserVerify", // Service name, packagename.ServiceName
+		"VerifyUser",            // Function
+		EncodeGRPCVerifyRequest,
+		DecodeGRPCVerifyResponse,
+		pb.VerifyReply{},
+		//grpctransport.ClientBefore(opentracing.ToGRPCRequest(tracer, logger)),
+	).Endpoint()
 }
 
 func verifyFactory(ctx context.Context) sd.Factory {
@@ -234,7 +233,7 @@ func main() {
 	// Handle /verify/
 	{
 		factory := verifyFactory(ctx)
-		subscriber := consulsd.NewSubscriber(client, factory, logger, "verification1", tags, passingOnly)
+		subscriber := consulsd.NewSubscriber(client, factory, logger, "verification", tags, passingOnly)
 		balancer := lb.NewRoundRobin(subscriber)
 		retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 		create = retry
