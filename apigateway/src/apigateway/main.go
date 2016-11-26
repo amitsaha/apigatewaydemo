@@ -58,7 +58,6 @@ func encodeJSONRequest(_ context.Context, req *http.Request, request interface{}
 	req.ContentLength = int64(len(buf.Bytes()))
 
 	req.Body = ioutil.NopCloser(&buf)
-	fmt.Println("%v", req.Body)
 	return nil
 }
 

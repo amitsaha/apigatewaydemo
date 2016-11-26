@@ -100,15 +100,15 @@ Do: rate limit exceeded
 ### Project creation
 
 ```bash
-$ http POST 127.0.0.1:8000/projects/ title=MyProejct Auth-Header-V1:121
+$ http POST 127.0.0.1:8000/projects/ Auth-Header-V1:3121 title=foobar11121
 HTTP/1.1 200 OK
-Content-Length: 31
+Content-Length: 39
 Content-Type: application/json; charset=utf-8
-Date: Tue, 15 Nov 2016 02:48:52 GMT
+Date: Sat, 26 Nov 2016 05:48:14 GMT
 
 {
     "id": 123,
-    "url": "Project-123"
+    "url": "Project-foobar11121"
 }
 ```
 
