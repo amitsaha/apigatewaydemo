@@ -52,7 +52,13 @@ func encodeJSONRequest(_ context.Context, req *http.Request, request interface{}
 	if err := json.NewEncoder(&buf).Encode(request); err != nil {
 		return err
 	}
+	req.Header.Set("Content-Type", "application/json")
+	// This is required for Python web applications to process
+	// the request correctly
+	req.ContentLength = int64(len(buf.Bytes()))
+
 	req.Body = ioutil.NopCloser(&buf)
+	fmt.Println("%v", req.Body)
 	return nil
 }
 
@@ -182,7 +188,7 @@ func main() {
 		consulAddr = flag.String("consul.addr", "", "Consul agent address")
 		// Retry upon a non-200 response (TODO: investigate)
 		retryMax     = flag.Int("retry.max", 1, "per-request retries to different instances")
-		retryTimeout = flag.Duration("retry.timeout", 500*time.Millisecond, "per-request timeout, including retries")
+		retryTimeout = flag.Duration("retry.timeout", 5000*time.Millisecond, "per-request timeout, including retries")
 	)
 	flag.Parse()
 

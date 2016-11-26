@@ -1,0 +1,19 @@
+name: webapp
+version: 0.1.0
+
+authors:
+  - Amit Saha <amitsaha.in@gmail.com>
+
+targets:
+  webapp:
+    main: src/webapp.cr
+
+dependencies:
+
+    kemal:
+        github: sdogruyol/kemal
+        version: 0.17.2
+
+crystal: 0.19.4
+
+license: MIT
