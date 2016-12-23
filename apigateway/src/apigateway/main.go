@@ -4,7 +4,7 @@
 // pattern
 // 2. Rate limiting handled by the gateway
 // 3. Auth handling handled by the gateway
-// 4. Stats
+// 4. Export /metrics endpoint for Prometheus of API Gateway Stats
 
 // Used with https://github.com/go-kit/kit/blob/master/examples/ as the starting
 // point
@@ -17,6 +17,7 @@ import (
 	"flag"
 	"fmt"
 	pb "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify"
+	"github.com/codegangsta/negroni"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/ratelimit"
@@ -25,9 +26,11 @@ import (
 	"github.com/go-kit/kit/sd/lb"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
+    "github.com/gorilla/mux"
 	"github.com/hashicorp/consul/api"
 	jujuratelimit "github.com/juju/ratelimit"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/zbindenren/negroni-prometheus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io"
@@ -215,7 +218,14 @@ func main() {
 	// Transport domain.
 	// Learn more about contexts: https://blog.golang.org/context
 	ctx := context.Background()
+    // API gateway setup
+	n := negroni.New()
+    // Prometheus middleware
+	m := negroniprometheus.NewMiddleware("apigateway")
+	n.Use(m)
 	r := mux.NewRouter()
+	r.Handle("/metrics", prometheus.Handler())
+	n.UseHandler(r)
 
 	var (
 		tags        = []string{}
@@ -256,7 +266,7 @@ func main() {
 	// HTTP transport.
 	go func() {
 		logger.Log("transport", "HTTP", "addr", *httpAddr)
-		errc <- http.ListenAndServe(*httpAddr, r)
+		errc <- http.ListenAndServe(*httpAddr, n)
 	}()
 
 	// Run!
