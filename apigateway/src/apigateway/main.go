@@ -5,6 +5,8 @@
 // 2. Rate limiting handled by the gateway
 // 3. Auth handling handled by the gateway
 // 4. Export /metrics endpoint for Prometheus of API Gateway Stats
+// 5. Export /debug/vars (expvar) listening over :9000
+// 6.
 
 // Used with https://github.com/go-kit/kit/blob/master/examples/ as the starting
 // point
@@ -14,6 +16,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	_ "expvar"
 	"flag"
 	"fmt"
 	pb "github.com/amitsaha/apigatewaydemo/grpc-app-1/verify"
@@ -26,7 +29,7 @@ import (
 	"github.com/go-kit/kit/sd/lb"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	httptransport "github.com/go-kit/kit/transport/http"
-    "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"github.com/hashicorp/consul/api"
 	jujuratelimit "github.com/juju/ratelimit"
 	"github.com/prometheus/client_golang/prometheus"
@@ -36,13 +39,13 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
-	//"net/http/httputil"
 )
 
 func encodeJSONResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
@@ -186,8 +189,9 @@ func projectsFactory(ctx context.Context, method, path string) sd.Factory {
 func main() {
 
 	var (
-		httpAddr   = flag.String("http.addr", ":8000", "Address for HTTP server")
-		consulAddr = flag.String("consul.addr", "", "Consul agent address")
+		httpAddr            = flag.String("http.addr", ":8000", "Address for API Gateway")
+		healthcheckHttpAddr = flag.String("healthcheck.addr", ":9000", "Address for Healthcheck")
+		consulAddr          = flag.String("consul.addr", "", "Consul agent address")
 		// Retry upon a non-200 response (TODO: investigate)
 		retryMax     = flag.Int("retry.max", 1, "per-request retries to different instances")
 		retryTimeout = flag.Duration("retry.timeout", 5000*time.Millisecond, "per-request timeout, including retries")
@@ -218,14 +222,20 @@ func main() {
 	// Transport domain.
 	// Learn more about contexts: https://blog.golang.org/context
 	ctx := context.Background()
-    // API gateway setup
+	// API gateway setup
 	n := negroni.New()
-    // Prometheus middleware
+	// Prometheus middleware
 	m := negroniprometheus.NewMiddleware("apigateway")
 	n.Use(m)
 	r := mux.NewRouter()
 	r.Handle("/metrics", prometheus.Handler())
 	n.UseHandler(r)
+
+	// Handlers for /debug/* (net/http/pprof)
+	r.HandleFunc("/debug/pprof/", pprof.Index)
+	r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 
 	var (
 		tags        = []string{}
@@ -263,10 +273,19 @@ func main() {
 		errc <- fmt.Errorf("%s", <-c)
 	}()
 
-	// HTTP transport.
+	// Start our API gateway
 	go func() {
 		logger.Log("transport", "HTTP", "addr", *httpAddr)
 		errc <- http.ListenAndServe(*httpAddr, n)
+	}()
+
+	// Start another service for debugging, possibly healthchecks
+	// Right now, we just expose expvar data
+    // Use with expvarmon -ports=9000 (https://github.com/divan/expvarmon)
+	// Note that we also have /metrics exporting prometheus metrics
+	go func() {
+		logger.Log("healthcheck", "HTTP", "addr", *healthcheckHttpAddr)
+		errc <- http.ListenAndServe(*healthcheckHttpAddr, nil)
 	}()
 
 	// Run!
