@@ -1,0 +1,23 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: webapp1-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: webapp1
+    spec:
+      containers:
+      - name: webapp1
+        image: amitsaha/webapp1:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        livenessProbe:
+          httpGet:
+            path: /_status/healthcheck/
+            port: 80
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
