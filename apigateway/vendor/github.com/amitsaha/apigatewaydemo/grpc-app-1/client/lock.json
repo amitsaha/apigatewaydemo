@@ -1,0 +1,70 @@
+{
+    "memo": "a80e57aae81fe51ffb41496976cfa4ab995f67d9c6dfbc3aa64f58000f92a455",
+    "projects": [
+        {
+            "name": "github.com/amitsaha/apigatewaydemo",
+            "branch": "kubernetes",
+            "revision": "10ee7d2fb2d3c6d5433688860d1d48cd763ca381",
+            "packages": [
+                "grpc-app-1/verify"
+            ]
+        },
+        {
+            "name": "github.com/golang/protobuf",
+            "branch": "master",
+            "revision": "2bba0603135d7d7f5cb73b2125beeda19c09f4ef",
+            "packages": [
+                "proto"
+            ]
+        },
+        {
+            "name": "golang.org/x/net",
+            "branch": "master",
+            "revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+            "packages": [
+                "context",
+                "http2",
+                "http2/hpack",
+                "idna",
+                "internal/timeseries",
+                "lex/httplex",
+                "trace"
+            ]
+        },
+        {
+            "name": "golang.org/x/text",
+            "branch": "master",
+            "revision": "19e3104b43db45fca0303f489a9536087b184802",
+            "packages": [
+                "internal/gen",
+                "internal/triegen",
+                "internal/ucd",
+                "secure/bidirule",
+                "transform",
+                "unicode/bidi",
+                "unicode/cldr",
+                "unicode/norm",
+                "unicode/rangetable"
+            ]
+        },
+        {
+            "name": "google.golang.org/grpc",
+            "version": "v1.2.1",
+            "revision": "8050b9cbc271307e5a716a9d782803d09b0d6f2d",
+            "packages": [
+                ".",
+                "codes",
+                "credentials",
+                "grpclog",
+                "internal",
+                "keepalive",
+                "metadata",
+                "naming",
+                "peer",
+                "stats",
+                "tap",
+                "transport"
+            ]
+        }
+    ]
+}

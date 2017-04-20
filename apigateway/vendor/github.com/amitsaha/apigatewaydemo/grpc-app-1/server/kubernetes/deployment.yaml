@@ -1,0 +1,22 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: rpc-app-1-deployment
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: rpc-app-1
+    spec:
+      containers:
+      - name: rpc-app-1
+        image: amitsaha/rpc-app-1:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 6000
+        livenessProbe:
+          tcpSocket:
+            port: 6000
+          initialDelaySeconds: 30
+          timeoutSeconds: 1
