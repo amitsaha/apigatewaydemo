@@ -14,6 +14,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	_ "expvar"
@@ -34,7 +35,6 @@ import (
 	jujuratelimit "github.com/juju/ratelimit"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/zbindenren/negroni-prometheus"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io"
 	"io/ioutil"
@@ -201,8 +201,8 @@ func main() {
 	// Logging domain.
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stderr)
-	logger = log.NewContext(logger).With("ts", log.DefaultTimestampUTC)
-	logger = log.NewContext(logger).With("caller", log.DefaultCaller)
+	//logger = log.NewContext(logger).With("ts", log.DefaultTimestampUTC)
+	//logger = log.NewContext(logger).With("caller", log.DefaultCaller)
 
 	// Service discovery domain. In this example we use Consul.
 	var client consulsd.Client
@@ -252,7 +252,7 @@ func main() {
 		balancer := lb.NewRoundRobin(subscriber)
 		retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 		create = retry
-		r.Handle("/projects/", httptransport.NewServer(ctx, create, decodeCreateRequest, encodeJSONResponse))
+		r.Handle("/projects/", httptransport.NewServer(create, decodeCreateRequest, encodeJSONResponse))
 	}
 	// Route to a gRPC service
 	// Handle /verify/
@@ -262,7 +262,7 @@ func main() {
 		balancer := lb.NewRoundRobin(subscriber)
 		retry := lb.Retry(*retryMax, *retryTimeout, balancer)
 		create = retry
-		r.Handle("/verify/", httptransport.NewServer(ctx, create, decodeVerifyRequest, encodeJSONResponse))
+		r.Handle("/verify/", httptransport.NewServer(create, decodeVerifyRequest, encodeJSONResponse))
 	}
 
 	// Interrupt handler.
@@ -281,7 +281,7 @@ func main() {
 
 	// Start another service for debugging, possibly healthchecks
 	// Right now, we just expose expvar data
-    // Use with expvarmon -ports=9000 (https://github.com/divan/expvarmon)
+	// Use with expvarmon -ports=9000 (https://github.com/divan/expvarmon)
 	// Note that we also have /metrics exporting prometheus metrics
 	go func() {
 		logger.Log("healthcheck", "HTTP", "addr", *healthcheckHttpAddr)
