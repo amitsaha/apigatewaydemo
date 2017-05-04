@@ -22,20 +22,25 @@ import (
 	"syscall"
 )
 
+// TODO: add request validation
 func verificationHandler(w http.ResponseWriter, r *http.Request) {
+	var (
+		resp    *pb.VerifyReply
+		request pb.VerifyRequest
+	)
+
 	conn, err := grpc.Dial("rpc-app-1:6000", grpc.WithInsecure())
 	// TODO If we cannot connect, return a proper HTTP response here
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer conn.Close()
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		log.Fatal("Error decoding request", err)
+	}
 	c := pb.NewUserVerifyClient(conn)
-
-	var resp *pb.VerifyReply
-
-	//TODO remove the harcoding
-	// Marshal incoming JSON into a pb.VerifyRequest
-	resp, err = c.VerifyUser(context.Background(), &pb.VerifyRequest{Id: 12321, Token: "$kasdasa"})
+	resp, err = c.VerifyUser(context.Background(), &request)
 	// TODO raise a proper HTTP error response here
 	if err != nil {
 		log.Fatal("Could not verify: %v", err)
@@ -46,6 +51,7 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+// TODO: add request validation
 func projectsHandler(w http.ResponseWriter, r *http.Request) {
 	u, e := url.Parse("http://webapp-1/create")
 	if e != nil {
