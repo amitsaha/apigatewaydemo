@@ -1,16 +1,16 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: webapp1-deployment
+  name: webapp-1-deployment
 spec:
   replicas: 3
   template:
     metadata:
       labels:
-        app: webapp1
+        app: webapp-1
     spec:
       containers:
-      - name: webapp1
+      - name: webapp-1
         image: amitsaha/webapp1:latest
         imagePullPolicy: Never
         ports:

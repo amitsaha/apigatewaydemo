@@ -1,10 +1,10 @@
 {
-    "memo": "d52b024b6ae158390e6099cfad80678060e968c553b5065e769980b8198f21f0",
+    "memo": "fc7d2f7002629b87a30b88448f1fd592bff92d90343b916737f8992ac7906ca0",
     "projects": [
         {
             "name": "github.com/amitsaha/apigatewaydemo",
             "branch": "kubernetes",
-            "revision": "4a655b3bc894c2fd1b2ec076731e88519a90328f",
+            "revision": "242e2c724e26cb49e94d159764e737da02c0cbbb",
             "packages": [
                 "grpc-app-1/verify"
             ]
@@ -26,49 +26,18 @@
             ]
         },
         {
-            "name": "github.com/go-kit/kit",
-            "version": "v0.4.0",
-            "revision": "fadad6fffe0466b19df9efd9acde5c9a52df5fa4",
-            "packages": [
-                "endpoint",
-                "log",
-                "ratelimit",
-                "sd",
-                "sd/cache",
-                "sd/consul",
-                "sd/lb",
-                "transport/grpc",
-                "transport/http"
-            ]
-        },
-        {
-            "name": "github.com/go-logfmt/logfmt",
-            "version": "v0.3.0",
-            "revision": "390ab7935ee28ec6b286364bba9b4dd6410cb3d5",
-            "packages": [
-                "."
-            ]
-        },
-        {
-            "name": "github.com/go-stack/stack",
-            "version": "v1.5.2",
-            "revision": "100eb0c0a9c5b306ca2fb4f165df21d80ada4b82",
-            "packages": [
-                "."
-            ]
-        },
-        {
             "name": "github.com/golang/protobuf",
             "branch": "master",
-            "revision": "2bba0603135d7d7f5cb73b2125beeda19c09f4ef",
+            "revision": "18c9bb3261723cd5401db4d0c9fbc5c3b6c70fe8",
             "packages": [
-                "proto"
+                "proto",
+                "ptypes/any"
             ]
         },
         {
             "name": "github.com/gorilla/context",
             "version": "v1.1",
-            "revision": "1ea25387ff6f684839d82767c1733ff4d4d15d0a",
+            "revision": "a85d2e53ba63bdea074dbbbb5983f0516974e87b",
             "packages": [
                 "."
             ]
@@ -82,67 +51,11 @@
             ]
         },
         {
-            "name": "github.com/hashicorp/consul",
-            "version": "v0.8.1",
-            "revision": "e9ca44d0a1757ac9aecc6785904a701936c10e4a",
-            "packages": [
-                "api"
-            ]
-        },
-        {
-            "name": "github.com/hashicorp/go-cleanhttp",
-            "branch": "master",
-            "revision": "3573b8b52aa7b37b9358d966a898feb387f62437",
-            "packages": [
-                "."
-            ]
-        },
-        {
-            "name": "github.com/hashicorp/go-rootcerts",
-            "branch": "master",
-            "revision": "6bb64b370b90e7ef1fa532be9e591a81c3493e00",
-            "packages": [
-                "."
-            ]
-        },
-        {
-            "name": "github.com/hashicorp/serf",
-            "version": "v0.8.1",
-            "revision": "d6574a5bb1226678d7010325fb6c985db20ee458",
-            "packages": [
-                "coordinate"
-            ]
-        },
-        {
-            "name": "github.com/juju/ratelimit",
-            "branch": "master",
-            "revision": "acf38b000a03e4ab89e40f20f1e548f4e6ac7f72",
-            "packages": [
-                "."
-            ]
-        },
-        {
-            "name": "github.com/kr/logfmt",
-            "branch": "master",
-            "revision": "b84e30acd515aadc4b783ad4ff83aff3299bdfe0",
-            "packages": [
-                "."
-            ]
-        },
-        {
             "name": "github.com/matttproud/golang_protobuf_extensions",
             "version": "v1.0.0",
             "revision": "3247c84500bff8d9fb6d579d800f20b3e091582c",
             "packages": [
                 "pbutil"
-            ]
-        },
-        {
-            "name": "github.com/mitchellh/go-homedir",
-            "branch": "master",
-            "revision": "b8bc1bf767474819792c23f32d8286a45736f1c6",
-            "packages": [
-                "."
             ]
         },
         {
@@ -164,7 +77,7 @@
         {
             "name": "github.com/prometheus/common",
             "branch": "master",
-            "revision": "9e0844febd9e2856f839c9cb974fbd676d1755a8",
+            "revision": "13ba4ddd0caa9c28ca7b7bffe1dfa9ed8d5ef207",
             "packages": [
                 "expfmt",
                 "internal/bitbucket.org/ww/goautoneg",
@@ -174,7 +87,7 @@
         {
             "name": "github.com/prometheus/procfs",
             "branch": "master",
-            "revision": "1e2146578273cef808354faa16a1922e0b5d6b2f",
+            "revision": "d098ca18df8bc825079013daf7bacefbb1ee877e",
             "packages": [
                 ".",
                 "xfs"
@@ -199,10 +112,9 @@
         {
             "name": "golang.org/x/net",
             "branch": "master",
-            "revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+            "revision": "feeb485667d1fdabe727840fe00adc22431bc86e",
             "packages": [
                 "context",
-                "context/ctxhttp",
                 "http2",
                 "http2/hpack",
                 "idna",
@@ -214,7 +126,7 @@
         {
             "name": "golang.org/x/text",
             "branch": "master",
-            "revision": "19e3104b43db45fca0303f489a9536087b184802",
+            "revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
             "packages": [
                 "internal/gen",
                 "internal/triegen",
@@ -228,13 +140,22 @@
             ]
         },
         {
+            "name": "google.golang.org/genproto",
+            "branch": "master",
+            "revision": "411e09b969b1170a9f0c467558eb4c4c110d9c77",
+            "packages": [
+                "googleapis/rpc/status"
+            ]
+        },
+        {
             "name": "google.golang.org/grpc",
-            "version": "v1.2.1",
-            "revision": "8050b9cbc271307e5a716a9d782803d09b0d6f2d",
+            "version": "v1.3.0",
+            "revision": "d2e1b51f33ff8c5e4a15560ff049d200e83726c5",
             "packages": [
                 ".",
                 "codes",
                 "credentials",
+                "grpclb/grpc_lb_v1",
                 "grpclog",
                 "internal",
                 "keepalive",
@@ -242,6 +163,7 @@
                 "naming",
                 "peer",
                 "stats",
+                "status",
                 "tap",
                 "transport"
             ]
