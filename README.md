@@ -1,69 +1,32 @@
 # Demo API Gateway
 
-This is a Demo API gateway implemented using [go kit](https://gokit.io/examples/). You will need
-`golang` installed. The `apigateway` code lives in the `apigateway` sub-directory and there
-are two example services:
+This is a Demo API gateway implemented in golang. The `apigateway` code lives in the `apigateway` sub-directory and there are two example services:
 
-- A Python web service
-- A gRPC server
+- A Python web service, `webapp-1`
+- A gRPC server, `rpc-app-1`
 
-### Install `gb`
+# Kubernetes deployment
 
-The complete documentation for `gb` can be found [here](https://getgb.io/), but here are
-the two steps involved:
+Read about the journey [here](https://github.com/amitsaha/amitsaha.github.io/blob/site/content/demo-api-gateway-kubernetes.rst)
 
-```
-$ go get github.com/constabulary/gb/...
-$ go get github.com/constabulary/gb/cmd/gb-vendor
-```
+# TODO
 
-Your `$GOPATH/bin` must be in your $PATH as well.
+API gateway:
 
-### Consul 
+- Aim to make the API gateway generic:
+  - a YAML file with "/path" => "service", {"http", "grpc"} should be all that's required
+- Implement service level rate limiting
+- Implement auth header checking by contacting a real service backed via DB
 
-We will use `consul` for service discovery. To install it, follow the official docs 
-[here](https://www.consul.io/intro/getting-started/install.html) and then start the
-agent in dev mode:
+General:
 
+- Deploy in AWS
+- Circuit breaking (linkerd)
+- Implement structured and correlated logging (https://kubernetes.io/docs/tasks/debug-application-cluster/logging-elasticsearch-kibana/)
+- Distributed tracing (linkerd)
+- Telemetry (linkerd)
+- Setup blue green deployment, CI for the individual services
 
-```
-$consul agent -dev
-.. 
-...
-```
-### Start the web application
-
-Our Python web application relies on `flask` and `consulate`, so you will need those installed
-before you can run it and register itself with `consul`. Using a virtual environment is recommended:
-
-```
-$ virtualenv python-web-app
-$ . ./python-web-app/bin/activate
-$ cd webap-1
-$ pip install requirements.txt
-$ python app.py
-
-```
-
-### Start the gRPC service
-
-```
-$ cd grpc-app-1/server
-$ gb build
-$ ./bin/server
-```
-
-
-### Start the API gateway
-
-```
-$ cd apigateway
-$ gb build
-$ ./bin/apigatway
-ts=2016-11-15T06:44:51Z caller=subscriber.go:48 service=projects tags=[] instances=1
-ts=2016-11-15T06:44:51Z caller=subscriber.go:48 service=verification tags=[] instances=1
-ts=2016-11-15T06:44:51Z caller=main.go:256 transport=HTTP addr=:8000
-```
 
 ### Make requests
 

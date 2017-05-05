@@ -1,0 +1,10 @@
+FROM golang:alpine AS builder
+ADD . /go/src/apigateway
+WORKDIR /go/src/apigateway
+EXPOSE 8000
+RUN go build -o apigateway main.go && go install -v
+
+FROM alpine
+EXPOSE 8000
+COPY --from=builder /go/bin/apigateway /apigateway
+CMD /apigateway
